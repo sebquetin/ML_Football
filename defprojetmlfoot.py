@@ -12,7 +12,7 @@ from pylab import *
 import os
 import json
 import numpy as np
-import pandas as pd
+
 
 def matchescoupedumonde():
     with open('open-data-master/data/matches/43.json') as match_data:
@@ -25,7 +25,7 @@ def matchescoupedumonde():
 def evenements(matches):
     events = []
     for i in matches:
-        with open('open-data-master/data/events/{}.json'.format(i)) as event_data:
+        with open('open-data-master/data/events/{}.json'.format(i), encoding="utf-8") as event_data:
             event = json.load(event_data)
             events += event
     return events
@@ -113,3 +113,71 @@ def angle_de_tir(position):
 
 #df["angle_de_tir"]=df["location"].map(lambda x : angle_de_tir(x))
 #df[df["angle_de_tir"]>90]
+    
+def Ratio(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        equipe=df[df["teammate"]==True].shape[0]
+        adverse=df[df["teammate"]==False].shape[0]
+        result=equipe/adverse
+    return result
+
+def Equipiers(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        equipe=df[df["teammate"]==True].shape[0]
+        result=equipe
+    return result
+
+def Adversaires(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        adverse=df[df["teammate"]==False].shape[0]
+        result=adverse
+    return result
+
+#df["ratio"]=df["environnement"].map(lambda x: Ratio(x))
+#df[df["ratio"]==0]
+#df["Equipiers"]=df["environnement"].map(lambda x: Equipiers(x))
+#df["Adversaires"]=df["environnement"].map(lambda x: Adversaires(x))
+
+
+def cercle5(environnement, centre):
+    #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
+    total=0
+    if environnement==False:
+        total=False
+    else:
+        df=pd.DataFrame(environnement)
+        for i in range(df.shape[0]):
+           
+            location=df["location"].iloc[i]
+            distance=math.sqrt((location[0]-centre[0])**2+(location[1]-centre[1])**2)
+            if distance<=5:
+                total+=1    
+    
+    return total
+
+def cercle10(environnement, centre):
+    #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
+    total=0
+    if environnement==False:
+        total=False
+    else:
+        df=pd.DataFrame(environnement)
+        for i in range(df.shape[0]):
+           
+            location=df["location"].iloc[i]
+            distance=math.sqrt((location[0]-centre[0])**2+(location[1]-centre[1])**2)
+            if distance<=10:
+                total+=1    
+    
+    return total
+#df["cercle_5_metre"]=df.apply(lambda x: cercle5(x["environnement"], x["location"]), axis=1)
+#df["cercle_10_metre"]=df.apply(lambda x: cercle10(x["environnement"], x["location"]), axis=1)
