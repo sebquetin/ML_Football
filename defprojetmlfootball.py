@@ -12,6 +12,7 @@ from pylab import *
 import os
 import json
 import numpy as np
+from math import *
 
 
 def matchescoupedumonde():
@@ -30,6 +31,46 @@ def evenements(matches):
             events += event
     return events
 
+
+def cercle(environnement, centre, x):
+    #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
+    
+    if environnement == False:
+        nb_close = 0
+    else:
+        df = pd.DataFrame(environnement)
+        df['is_close'] = df['location'].map(lambda location : math.sqrt((location[0]- centre[0])**2+(location[1]-centre[1])**2)<x)
+        nb_close = df['is_close'].sum()
+    return nb_close
+
+def Ratio(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        equipe=df[df["teammate"]==True].shape[0]
+        adverse=df[df["teammate"]==False].shape[0]
+        result=equipe/adverse
+    return result
+
+def Equipiers(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        equipe=df[df["teammate"]==True].shape[0]
+        result=equipe
+    return result
+
+def Adversaires(environnement):
+    if environnement==False:
+        result=False
+    else:
+        df=pd.DataFrame(environnement)
+        adverse=df[df["teammate"]==False].shape[0]
+        result=adverse
+    return result
+
 def createdataframe(evenements):
     
     df_events = pd.DataFrame(evenements)
@@ -38,8 +79,7 @@ def createdataframe(evenements):
     df_to_study["outcome"]=df_to_study["shot"].map(lambda x : x["outcome"]["name"])
     df_to_study["technique"]=df_to_study["shot"].map(lambda x : x["technique"]["name"])
     
-    df_to_study["environnement"]=df_to_study["shot"].map(lambda x : x["freeze_frame"] if 'freeze_framet MLFootball/Projet-MLFootball-master/defprojetmlfootball.py", line 85
-    else:https:/e' in x else False)
+    df_to_study["environnement"]=df_to_study["shot"].map(lambda x : x["freeze_frame"] if 'freeze_frame' in x else False)
     df_to_study["stat"]=df_to_study["shot"].map(lambda x : x["statsbomb_xg"])
     df_to_study["1V1"]=df_to_study["shot"].map(lambda x : x["one_on_one"] if 'one_on_one' in x else False)
     df_to_study=df_to_study.drop("shot",1)
@@ -50,8 +90,12 @@ def createdataframe(evenements):
     
     df_to_study["situation"]=df_to_study["play_pattern"].map(lambda x : x["name"])
     df_to_study=df_to_study.drop("play_pattern",1)
-    df_to_study["cercle5"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 5)
-    df_to_study["cercle10"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 10)
+    df_to_study["cercle5"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 5), axis=1)
+    df_to_study["cercle10"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 10), axis=1)
+    df_to_study["ratio"]=df_to_study["environnement"].map(lambda x: Ratio(x) if x!=False else False)
+    df_to_study["equipe"]=df_to_study["environnement"].map(lambda x: Equipiers(x) if x!=False else False)
+    df_to_study["aversaires"]=df_to_study["environnement"].map(lambda x: Adversaires(x) if x!=False else False)
+
     
     
     return df_to_study
@@ -70,7 +114,7 @@ def angle_de_tir(position):
             angledessous=np.arccos(perpendiculaire/endessous)
             angledetir=angledessus-angledessous
             
-            ["name"]
+          
         elif position[1]<36:
             perpendiculaire=np.sqrt((position[0]-120)**2)
             audessus=np.sqrt((position[0]-120)**2+(position[1]-36)**2)
@@ -87,13 +131,13 @@ def angle_de_tir(position):
             angledetir=angledessus+angledessous
             
         
-    else:https://github.com/sebquetin/Projet-MLFootball
+    else:
 
         if position[1]>44:
             perpendiculaire=np.sqrt((position[0]-0)**2)
             audessus=np.sqrt((position[0]-0)**2+(position[1]-36)**2)
             endessous=np.sqrt((position[0]-0)**2+(position[1]-44)**2)
-            angledessus=np.arccos(perpendiculaire/audessus)ercle(x
+            angledessus=np.arccos(perpendiculaire/audessus)
             angledessous=np.arccos(perpendiculaire/endessous)
             angledetir=angledessus-angledessous
             
@@ -101,12 +145,12 @@ def angle_de_tir(position):
         elif position[1]<36:
             perpendiculaire=np.sqrt((position[0]-0)**2)
             audessus=np.sqrt((position[0]-0)**2+(position[1]-36)**2)
-            endessous=np.sqrt((position[0]-0)**2+(position[1]-44)**2) centreercle(x
+            endessous=np.sqrt((position[0]-0)**2+(position[1]-44)**2)
             angledessus=np.arccos(perpendiculaire/audessus)
             angledessous=np.arccos(perpendiculaire/endessous)
             angledetir=angledessous-angledessus
         else:
-            perpendiculaire=np.sqrt((position[0]-0)**2)["name"]
+            perpendiculaire=np.sqrt((position[0]-0)**2)
             audessus=np.sqrt((position[0]-0)**2+(position[1]-36)**2)
             endessous=np.sqrt((position[0]-0)**2+(position[1]-44)**2)
             angledessus=np.arccos(perpendiculaire/audessus)
@@ -119,33 +163,7 @@ def angle_de_tir(position):
 #df["angle_de_tir"]=df["location"].map(lambda x : angle_de_tir(x))
 #df[df["angle_de_tir"]>90]
     
-def Ratio(environnement):
-    if environnement==False:
-        result=False
-    else:
-        df=pd.DataFrame(environnement)
-        equipe=df[df["teammate"]==True].shape[0]
-        adverse=df[df["teammate"]==False].shape[0]
-        result=equipe/adverse
-    return resultnam
 
-def Equipiers(environnement):
-    if environnement==False:["name"]
-        result=False
-    else:
-        df=pd.DataFrame(environnement)
-        equipe=df[df["teammate"]==True].shape[0]
-        result=equipe
-    return result
-
-def Adversaires(environnement):
-    if environnement==False:
-        result=False
-    else:
-        df=pd.DataFrame(environnement)
-        adverse=df[df["teammate"]==False].shape[0]
-        result=adverse
-    return result
 
 #df["ratio"]=df["environnement"].map(lambda x: Ratio(x))
 #df[df["ratio"]==0]
@@ -156,7 +174,7 @@ def Adversaires(environnement):
 def cercle(environnement, centre,x):
     #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
     total=0
-    if environnement==False: centre
+    if environnement==False:
         total=False
     else:
         df=pd.DataFrame(environnement)
@@ -168,9 +186,9 @@ def cercle(environnement, centre,x):
                 total+=1    
     
     return total
+
 def cercle(environnement, centre,x):
     #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
-    total=0
     nb_close = 0
     if environnement==False:
         pass
@@ -180,16 +198,8 @@ def cercle(environnement, centre,x):
             is_close = math.sqrt((location[0]-centre[0])**2+(location[1]-centre[1])**2)<x
             nb_close += is_close
     return nb_close
-def cercle(environnement, centre, x):
-    #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
-    total = 0
-    if environnement == False:
-        nb_close = 0
-    else:
-        df = pd.DataFrame(environnement)
-        df['is_close'] = df['location'].map(lambda location : math.sqrt((location[0]- centre[0])**2+(location[1]-centre[1])**2)<x)
-        nb_close = df['is_close'].sum()
-    return nb_close
+
+
 def cercle(environnement, centre,x):
     #racine_carre((x_point - x_centre)² + (y_centre - y_point)) < rayon
     total=0
