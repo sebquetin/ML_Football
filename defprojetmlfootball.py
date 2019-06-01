@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 21 11:10:31 2019
-
-@author: quetin
-"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from pylab import *
@@ -43,6 +35,7 @@ def cercle(environnement, centre, x):
         nb_close = df['is_close'].sum()
     return nb_close
 
+
 def Ratio(environnement):
     if environnement==False:
         result=False
@@ -70,39 +63,6 @@ def Adversaires(environnement):
         adverse=df[df["teammate"]==False].shape[0]
         result=adverse
     return result
-
-def createdataframe(evenements):
-    
-    df_events = pd.DataFrame(evenements)
-    df_shot = df_events[df_events['type'].map(lambda x: x['id']==16)]
-    df_to_study=df_shot[['player','position','play_pattern','period','shot','location','timestamp']]
-    df_to_study["outcome"]=df_to_study["shot"].map(lambda x : x["outcome"]["name"])
-    df_to_study["technique"]=df_to_study["shot"].map(lambda x : x["technique"]["name"])
-    
-    df_to_study["environnement"]=df_to_study["shot"].map(lambda x : x["freeze_frame"] if 'freeze_frame' in x else False)
-    df_to_study["stat"]=df_to_study["shot"].map(lambda x : x["statsbomb_xg"])
-    df_to_study["1V1"]=df_to_study["shot"].map(lambda x : x["one_on_one"] if 'one_on_one' in x else False)
-    df_to_study=df_to_study.drop("shot",1)
-    df_to_study["poste"]=df_to_study["position"].map(lambda x : x["name"])
-    df_to_study=df_to_study.drop("position",1)
-    df_to_study["joueur"]=df_to_study["player"].map(lambda x : x["name"])
-    df_to_study=df_to_study.drop("player",1)
-    
-    df_to_study["situation"]=df_to_study["play_pattern"].map(lambda x : x["name"])
-    df_to_study=df_to_study.drop("play_pattern",1)
-    df_to_study["cercle5"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 5), axis=1)
-    df_to_study["cercle10"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 10), axis=1)
-    df_to_study["ratio"]=df_to_study["environnement"].map(lambda x: Ratio(x) if x!=False else False)
-    df_to_study["equipe"]=df_to_study["environnement"].map(lambda x: Equipiers(x) if x!=False else False)
-    df_to_study["aversaires"]=df_to_study["environnement"].map(lambda x: Adversaires(x) if x!=False else False)
-
-    
-    
-    return df_to_study
-    
-    
-print(createdataframe(evenements(matchescoupedumonde())))
-
 
 def angle_de_tir(position):
     if position[0]>60:
@@ -159,6 +119,44 @@ def angle_de_tir(position):
             
     
     return angledetir*(180/math.pi)
+
+def distance(position):
+    distance=np.sqrt((120-position[0])**2+(40-position[1])**2)
+    return distance
+
+def createdataframe(evenements):
+    
+    df_events = pd.DataFrame(evenements)
+    df_shot = df_events[df_events['type'].map(lambda x: x['id']==16)]
+    df_to_study=df_shot[['player','position','play_pattern','period','shot','location','timestamp']]
+    df_to_study["outcome"]=df_to_study["shot"].map(lambda x : x["outcome"]["name"])
+    df_to_study["technic"]=df_to_study["shot"].map(lambda x : x["technique"]["name"])
+    
+    df_to_study["environnement"]=df_to_study["shot"].map(lambda x : x["freeze_frame"] if 'freeze_frame' in x else False)
+    df_to_study["statbomb"]=df_to_study["shot"].map(lambda x : x["statsbomb_xg"])
+    df_to_study["1V1"]=df_to_study["shot"].map(lambda x : x["one_on_one"] if 'one_on_one' in x else False)
+    df_to_study=df_to_study.drop("shot",1)
+    df_to_study["post"]=df_to_study["position"].map(lambda x : x["name"])
+    df_to_study=df_to_study.drop("position",1)
+    df_to_study["player"]=df_to_study["player"].map(lambda x : x["name"])
+    df_to_study=df_to_study.drop("player",1)
+    
+    df_to_study["play_pattern"]=df_to_study["play_pattern"].map(lambda x : x["name"])
+    df_to_study["circle5"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 5), axis=1)
+    df_to_study["circle10"]=df_to_study.apply(lambda x : cercle(x["environnement"],x["location"], 10), axis=1)
+    df_to_study["ratio"]=df_to_study["environnement"].map(lambda x: Ratio(x) if x!=False else False)
+    df_to_study["team"]=df_to_study["environnement"].map(lambda x: Equipiers(x) if x!=False else False)
+    df_to_study["opponents"]=df_to_study["environnement"].map(lambda x: Adversaires(x) if x!=False else False)
+    df_to_study["shooting_angle"]=df_to_study["location"].map(lambda x: angle_de_tir(x) if x!=False else False)
+    df_to_study["distance"]=df_to_study["location"].map(lambda x: distance(x) if x!=False else False)
+    
+    return df_to_study
+    
+    
+print(createdataframe(evenements(matchescoupedumonde())))
+
+
+
 
 #df["angle_de_tir"]=df["location"].map(lambda x : angle_de_tir(x))
 #df[df["angle_de_tir"]>90]
